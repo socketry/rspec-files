@@ -7,7 +7,7 @@ Gem::Specification.new do |spec|
 	spec.authors       = ["Samuel Williams"]
 	spec.email         = ["samuel.williams@oriontransfer.co.nz"]
 
-	spec.summary       = "Helpers for writing specs against the async gem."
+	spec.summary       = "RSpec helpers for buffering and detecting file descriptor leaks."
 	spec.homepage      = "https://github.com/socketry/rspec-files"
 
 	spec.files         = `git ls-files -z`.split("\x0").reject do |f|
