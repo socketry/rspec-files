@@ -21,7 +21,9 @@
 module RSpec
 	module Files
 		module Leaks
-			def current_ios(gc: GC.start)
+			def current_ios(gc: true)
+				GC.start if gc
+				
 				all_ios = ObjectSpace.each_object(::IO).to_a.sort_by(&:object_id)
 				
 				# We are not interested in ios that have been closed already:
