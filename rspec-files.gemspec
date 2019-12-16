@@ -4,6 +4,7 @@ require_relative 'lib/rspec/files/version'
 Gem::Specification.new do |spec|
 	spec.name          = "rspec-files"
 	spec.version       = RSpec::Files::VERSION
+	spec.licenses      = ["MIT"]
 	spec.authors       = ["Samuel Williams"]
 	spec.email         = ["samuel.williams@oriontransfer.co.nz"]
 
