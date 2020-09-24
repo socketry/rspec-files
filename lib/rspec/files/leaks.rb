@@ -35,12 +35,16 @@ module RSpec
 
 				before_ios = current_ios(gc: gc)
 
-				yield if (block_given?)
+				leaked = lambda { current_ios(gc: gc) - before_ios }
+
+				yield(leaked) if (block_given?)
 				
 				GC.start if (gc)
 
-				current_ios(gc: gc) - before_ios
+				leaked.call
 			end
+
+			extend self
 		end
 		
 		RSpec.shared_context Leaks do
@@ -52,6 +56,38 @@ module RSpec
 				# be read from, as otherwise RSpec will attempt to test if they are
 				# readable and get stuck forever.
 				expect(created_ios { example.run }.map(&:inspect)).to eq([ ])
+			end
+		end
+
+		RSpec::Matchers.define :leak_handles do |expected|
+			RSpec::Files::Leaks.created_ios do |leaked|
+				match do |actual|
+					actual.call
+					
+					if (expected)
+						leaked.call.length == expected
+					else
+						leaked.call.length > 0
+					end
+				end
+
+				def supports_block_expectations?
+					true
+				end
+			end
+		end
+
+		RSpec::Matchers.define :not_leak_handles do
+			RSpec::Files::Leaks.created_ios do |leaked|
+				match do |actual|
+					actual.call
+
+					leaked.call.length == 0
+				end
+
+				def supports_block_expectations?
+					true
+				end
 			end
 		end
 	end
