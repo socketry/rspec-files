@@ -19,20 +19,35 @@
 # THE SOFTWARE.
 
 require 'rspec/files/leaks'
+require 'tempfile'
+
+Signal.trap('QUIT') do
+	Thread.list.each do |t|
+		puts t.backtrace.join("\n")
+	end
+end
 
 RSpec.describe "leaks context" do
 	include_context RSpec::Files::Leaks
+
+	def retain_leaks
+		# Retains references for a short period of time to avoid aggressive
+		# garbage collection when they fall out of scope.
+		list = [ ]
+
+		yield(list)
+
+		list.clear
+	end
 	
-	it "leaks io" do
-		expect(before_ios).to be == current_ios
-		
-		input, output = IO.pipe
-		
-		expect(before_ios).to_not be == current_ios
-		
-		input.close
-		output.close
-		
-		expect(before_ios).to be == current_ios
+	it "detects leaked IO objects" do
+		expect(created_ios { }.length).to eq(0)
+
+		retain_leaks do |leaks|
+			expect(created_ios { leaks << File.open(__FILE__) }.length).to eq(1)
+			expect(created_ios { leaks << IO.pipe }.length).to eq(2)
+		end
+
+		expect(created_ios { input, output = IO.pipe; input.close; output.close }.length).to eq(0)
 	end
 end

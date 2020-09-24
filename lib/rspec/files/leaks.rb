@@ -29,21 +29,29 @@ module RSpec
 				# We are not interested in ios that have been closed already:
 				return all_ios.reject{|io| io.closed?}
 			end
+
+			def created_ios(gc: true)
+				GC.start if (gc)
+
+				before_ios = current_ios(gc: gc)
+
+				yield if (block_given?)
+				
+				GC.start if (gc)
+
+				current_ios(gc: gc) - before_ios
+			end
 		end
 		
 		RSpec.shared_context Leaks do
 			include Leaks
 			
-			let(:before_ios) {current_ios}
-			let(:after_ios) {current_ios}
-			
 			# We use around(:each) because it's the highest priority.
 			around(:each) do |example|
-				before_ios
-				
-				example.run.tap do
-					expect(after_ios - before_ios).to eq([ ])
-				end
+				# Here inspect is used to avoid reporting on handles that cannot
+				# be read from, as otherwise RSpec will attempt to test if they are
+				# readable and get stuck forever.
+				expect(created_ios { example.run }.map(&:inspect)).to eq([ ])
 			end
 		end
 	end
