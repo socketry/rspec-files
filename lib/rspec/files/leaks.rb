@@ -42,7 +42,7 @@ module RSpec
 				before_ios
 				
 				example.run.tap do
-					expect(after_ios).to be == before_ios
+					expect(after_ios - before_ios).to eq([ ])
 				end
 			end
 		end
