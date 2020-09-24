@@ -50,4 +50,24 @@ RSpec.describe "leaks context" do
 
 		expect(created_ios { input, output = IO.pipe; input.close; output.close }.length).to eq(0)
 	end
+
+	describe "can expect" do
+		it "to leak_handles" do
+			retain_leaks do |leaks|
+				expect { leaks << File.open(__FILE__) }.to leak_handles
+				expect { leaks << File.open(__FILE__) }.to leak_handles(1)
+				expect { leaks << File.open(__FILE__) }.to_not leak_handles(2)
+			end
+		end
+
+		it "to not_leak_handles" do
+			retain_leaks do |leaks|
+				expect { File.open(__FILE__).close }.to not_leak_handles
+
+				expect {
+					expect { leaks << File.open(__FILE__) }.to not_leak_handles
+				}.to raise_error(RSpec::Expectations::ExpectationNotMetError)
+			end
+		end
+	end
 end
