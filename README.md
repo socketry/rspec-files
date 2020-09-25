@@ -2,27 +2,27 @@
 
 Detect leaked file descriptors and provides convenient file buffers.
 
-[![Build Status](https://travis-ci.com/socketry/rspec-files.svg?branch=master)](https://travis-ci.com/socketry/rspec-files)
+[![Development Status](https://github.com/socketry/rspec-files/workflows/Development/badge.svg)](https://github.com/socketry/rspec-files/actions?workflow=Development)
 
 ## Installation
 
 Add this line to your application's Gemfile:
 
-```ruby
+``` ruby
 gem 'rspec-files'
 ```
 
 And then execute:
 
-	$ bundle
+    $ bundle
 
 Or install it yourself as:
 
-	$ gem install rspec-files
-	
+    $ gem install rspec-files
+
 Finally, add this require statement to the top of `spec/spec_helper.rb`
 
-```ruby
+``` ruby
 require 'rspec/files'
 ```
 
@@ -32,7 +32,7 @@ require 'rspec/files'
 
 Leaking sockets and other kinds of IOs are a problem for long running services. `RSpec::Files::Leaks` tracks all open sockets both before and after the spec. If any are left open, a `RuntimeError` is raised and the spec fails.
 
-```ruby
+``` ruby
 RSpec.describe "leaky ios" do
 	include_context RSpec::Files::Leaks
 	
@@ -49,7 +49,7 @@ In some cases, the Ruby garbage collector will close IOs. In the above case, it'
 
 File buffers are useful for specs which implement I/O operations. This context automatically manages a disk-based file which can be used for buffering.
 
-```ruby
+``` ruby
 RSpec.describe "buffer" do
 	include_context RSpec::Files::Buffer
 	
@@ -64,11 +64,11 @@ end
 
 ## Contributing
 
-1. Fork it
-2. Create your feature branch (`git checkout -b my-new-feature`)
-3. Commit your changes (`git commit -am 'Add some feature'`)
-4. Push to the branch (`git push origin my-new-feature`)
-5. Create new Pull Request
+1.  Fork it
+2.  Create your feature branch (`git checkout -b my-new-feature`)
+3.  Commit your changes (`git commit -am 'Add some feature'`)
+4.  Push to the branch (`git push origin my-new-feature`)
+5.  Create new Pull Request
 
 ## License
 
