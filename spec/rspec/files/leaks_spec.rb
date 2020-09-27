@@ -19,55 +19,39 @@
 # THE SOFTWARE.
 
 require 'rspec/files/leaks'
+require 'rspec/core/sandbox'
 require 'tempfile'
 
-Signal.trap('QUIT') do
-	Thread.list.each do |t|
-		puts t.backtrace.join("\n")
-	end
-end
-
-RSpec.describe "leaks context" do
+RSpec.describe RSpec::Files::Leaks do
 	include_context RSpec::Files::Leaks
-
-	def retain_leaks
-		# Retains references for a short period of time to avoid aggressive
-		# garbage collection when they fall out of scope.
-		list = [ ]
-
-		yield(list)
-
-		list.clear
+	
+	it "leaks IO instances" do
+		expect(before_ios).to be == current_ios
+	
+		input, output = IO.pipe
+	
+		expect(before_ios).to_not be == current_ios
+	
+		input.close
+		output.close
+	
+		expect(before_ios).to be == current_ios
 	end
 	
-	it "detects leaked IO objects" do
-		expect(created_ios { }.length).to eq(0)
-
-		retain_leaks do |leaks|
-			expect(created_ios { leaks << File.open(__FILE__) }.length).to eq(1)
-			expect(created_ios { leaks << IO.pipe }.length).to eq(2)
+	it "fails if it leaks IO instances" do
+		group = RSpec::Core::Sandbox.sandboxed{RSpec.describe}
+		group.include_context RSpec::Files::Leaks
+		
+		pipe = nil
+		
+		group.example("leaky example") do
+			pipe = IO.pipe
 		end
-
-		expect(created_ios { input, output = IO.pipe; input.close; output.close }.length).to eq(0)
-	end
-
-	describe "can expect" do
-		it "to leak_handles" do
-			retain_leaks do |leaks|
-				expect { leaks << File.open(__FILE__) }.to leak_handles
-				expect { leaks << File.open(__FILE__) }.to leak_handles(1)
-				expect { leaks << File.open(__FILE__) }.to_not leak_handles(2)
-			end
-		end
-
-		it "to not_leak_handles" do
-			retain_leaks do |leaks|
-				expect { File.open(__FILE__).close }.to not_leak_handles
-
-				expect {
-					expect { leaks << File.open(__FILE__) }.to not_leak_handles
-				}.to raise_error(RSpec::Expectations::ExpectationNotMetError)
-			end
-		end
+		
+		result = group.run
+		
+		pipe.each(&:close)
+		
+		expect(result).to be_falsy
 	end
 end
