@@ -28,6 +28,11 @@ module RSpec
 				
 				# We are not interested in ios that have been closed already:
 				return all_ios.reject(&:closed?)
+			rescue RuntimeError => error
+				# This occurs on JRuby.
+				warn error.message
+				
+				return []
 			end
 		end
 		
