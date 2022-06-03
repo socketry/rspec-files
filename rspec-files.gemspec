@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 
 require_relative "lib/rspec/files/version"
 
@@ -6,7 +7,7 @@ Gem::Specification.new do |spec|
 	spec.version = RSpec::Files::VERSION
 	
 	spec.summary = "RSpec helpers for buffering and detecting file descriptor leaks."
-	spec.authors = ["Samuel Williams"]
+	spec.authors = ["Samuel Williams", "Scott Tadman", "Cyril Roelandt", "Gleb Sinyavskiy", "Olle Jonsson"]
 	spec.license = "MIT"
 	
 	spec.homepage = "https://github.com/socketry/rspec-files"
