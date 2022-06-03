@@ -18,6 +18,8 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 
+require 'rspec/core'
+
 require_relative "files/version"
 require_relative "files/leaks"
 require_relative "files/buffer"
