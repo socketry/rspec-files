@@ -54,4 +54,9 @@ RSpec.describe RSpec::Files::Leaks do
 		
 		expect(result).to be_falsy
 	end
+	
+	it "shouldn't leak io" do
+		# I've seen this create ios which are finalised.
+		ok = `echo OK`
+	end
 end

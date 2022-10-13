@@ -27,7 +27,10 @@ module RSpec
 				all_ios = ObjectSpace.each_object(::IO).to_a.sort_by(&:object_id)
 				
 				# We are not interested in ios that have been closed already:
-				return all_ios.reject(&:closed?)
+				return all_ios.reject do |io|
+					# It's possible to get errors if the IO is finalised.
+					io.closed? rescue true
+				end
 			rescue RuntimeError => error
 				# This occurs on JRuby.
 				warn error.message
